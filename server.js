@@ -1,24 +1,22 @@
+// functions/server.js
 const express = require('express');
 const requestIp = require('request-ip');
 const axios = require('axios');
-require('dotenv').config(); // Load environment variables from .env file
+require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const WEATHER_API_KEY = process.env.WEATHER_API_KEY; // Get API key from environment variable
-const LOCATION = 'New York'; // Location to fetch weather for
+const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
+const LOCATION = 'New York';
 
 app.get('/api/hello', async (req, res) => {
   const visitorName = req.query.visitor_name || 'Guest';
   const clientIp = requestIp.getClientIp(req);
 
   try {
-    // Check if the API key is loaded correctly
     if (!WEATHER_API_KEY) {
       throw new Error('WEATHER_API_KEY is not defined. Please check your .env file.');
     }
 
-    // Fetch weather data from OpenWeatherMap API
     const weatherResponse = await axios.get(`https://api.openweathermap.org/data/2.5/weather`, {
       params: {
         q: LOCATION,
@@ -27,7 +25,6 @@ app.get('/api/hello', async (req, res) => {
       }
     });
 
-    // Ensure the API response contains the expected data
     if (!weatherResponse.data || !weatherResponse.data.main || typeof weatherResponse.data.main.temp !== 'number') {
       throw new Error('Unexpected response format from weather API');
     }
@@ -47,6 +44,4 @@ app.get('/api/hello', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+module.exports = app;
